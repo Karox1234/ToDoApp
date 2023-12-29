@@ -12,3 +12,6 @@
 - 할일카드 목록 조회 기능 , 내림차순으로 정렬
 - 선택한 할 일 수정 기능
 - 선택한 할 일 삭제 기능
+
+## API명세서
+https://autumn-mayflower-e69.notion.site/bece2393b4464e1cb78f40c12054c855?v=6b92030ff25d4ea68bad5faa4c67e10a
