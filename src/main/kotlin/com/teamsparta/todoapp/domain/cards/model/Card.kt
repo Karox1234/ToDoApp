@@ -2,7 +2,6 @@ package com.teamsparta.todoapp.domain.cards.model
 
 import com.teamsparta.todoapp.domain.cards.dto.CardResponse
 import jakarta.persistence.*
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
 @Entity
@@ -18,7 +17,7 @@ class Card(
     @Column(name = "writer")
     var writer: String? = null,
 
-    @Column(name = "createdTime")
+    @Column(name = "createdAt")
     var createdAt: OffsetDateTime
 
 
@@ -36,6 +35,6 @@ fun Card.toResponse(): CardResponse {
         title = title,
         description = description,
         writer = writer,
-    createdAT = createdAt
+        createdAt = createdAt
     )
 }
