@@ -6,6 +6,5 @@ data class UpdateCardRequest(
     val title: String,
     val description: String?,
     val writer: String?,
-    val createdAT: OffsetDateTime,
-    val completed: Boolean?
+    val createdAT: OffsetDateTime
 )

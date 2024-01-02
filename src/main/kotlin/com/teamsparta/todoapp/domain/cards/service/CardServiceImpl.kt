@@ -15,10 +15,11 @@ import java.time.OffsetDateTime
 @Service
 
 class CardServiceImpl(
-    private val cardRepository: CardRepository) : CardService {
+    private val cardRepository: CardRepository
+) : CardService {
 
-        override fun getAllCardList(): List<CardResponse> {
-        return cardRepository.findAll().map { it.toResponse()}
+    override fun getAllCardList(): List<CardResponse> {
+        return cardRepository.findAll().map { it.toResponse() }
     }
 
     override fun getCardById(cardId: Long): CardResponse {
@@ -27,15 +28,15 @@ class CardServiceImpl(
     }
 
     @Transactional
-       override fun createCard(request: CreateCardRequest): CardResponse {
-            return cardRepository.save(
-                Card(
-                    title = request.title,
-                    description = request.description,
-                    writer = request.writer,
-                    createdAt = OffsetDateTime.now()
-                )
-            ).toResponse()
+    override fun createCard(request: CreateCardRequest): CardResponse {
+        return cardRepository.save(
+            Card(
+                title = request.title,
+                description = request.description,
+                writer = request.writer,
+                createdAt = OffsetDateTime.now(),
+            )
+        ).toResponse()
     }
 
     @Transactional
@@ -54,5 +55,12 @@ class CardServiceImpl(
     override fun deleteCard(cardId: Long) {
         val card = cardRepository.findByIdOrNull(cardId) ?: throw ModelNotFoundException("Card", cardId)
         cardRepository.delete(card)
+    }
+
+    @Transactional
+    override fun toggleCardCompletion(cardId: Long): CardResponse {
+        val card = cardRepository.findByIdOrNull(cardId) ?: throw ModelNotFoundException("Card", cardId)
+        card.completed = !card.completed
+        return card.toResponse()
     }
 }

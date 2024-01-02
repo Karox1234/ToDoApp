@@ -10,4 +10,4 @@ data class CardResponse(
     val writer: String?,
     val createdAt: OffsetDateTime,
     var completed: Boolean?
-    )
+)

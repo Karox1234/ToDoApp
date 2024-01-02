@@ -13,7 +13,6 @@ class Card(
     @Column(name = "description")
     var description: String? = null,
 
-
     @Column(name = "writer")
     var writer: String? = null,
 
