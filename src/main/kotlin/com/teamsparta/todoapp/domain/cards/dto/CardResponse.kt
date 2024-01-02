@@ -9,5 +9,5 @@ data class CardResponse(
     val description: String?,
     val writer: String?,
     val createdAt: OffsetDateTime,
-
+    var completed: Boolean?
     )

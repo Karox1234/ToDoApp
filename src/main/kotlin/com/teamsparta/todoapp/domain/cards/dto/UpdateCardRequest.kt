@@ -5,6 +5,7 @@ import java.time.OffsetDateTime
 data class UpdateCardRequest(
     val title: String,
     val description: String?,
-    val writer : String?,
-    val createdAT : OffsetDateTime
+    val writer: String?,
+    val createdAT: OffsetDateTime,
+    val completed: Boolean?
 )

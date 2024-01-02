@@ -5,23 +5,14 @@ import com.teamsparta.todoapp.domain.cards.dto.CreateCardRequest
 import com.teamsparta.todoapp.domain.cards.dto.UpdateCardRequest
 import com.teamsparta.todoapp.domain.cards.service.CardService
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RequestMapping("/card")
 @RestController
-class CardController(private val cardService: CardService)
-{
+class CardController(private val cardService: CardService) {
 
-    @GetMapping()
+    @GetMapping
     fun getCardList(): ResponseEntity<List<CardResponse>> {
         return ResponseEntity
             .status(HttpStatus.OK).body(cardService.getAllCardList())
@@ -48,7 +39,7 @@ class CardController(private val cardService: CardService)
         @RequestBody updateCardRequest: UpdateCardRequest
     ): ResponseEntity<CardResponse> {
         return ResponseEntity
-            .status(HttpStatus.OK).body(cardService.updateCard(cardId,updateCardRequest))
+            .status(HttpStatus.OK).body(cardService.updateCard(cardId, updateCardRequest))
 
     }
 
@@ -59,5 +50,12 @@ class CardController(private val cardService: CardService)
             .status(HttpStatus.NO_CONTENT).build()
 
     }
+
+    @PatchMapping("/{cardId}/toggle")
+    fun toggleCardCompletion(@PathVariable cardId: Long): ResponseEntity<CardResponse> {
+        return ResponseEntity
+            .status(HttpStatus.OK).body(cardService.toggleCardCompletion(cardId))
+    }
+
 
 }

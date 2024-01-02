@@ -18,8 +18,10 @@ class Card(
     var writer: String? = null,
 
     @Column(name = "createdAt")
-    var createdAt: OffsetDateTime
+    var createdAt: OffsetDateTime,
 
+    @Column(name = "completed")
+    var completed: Boolean = false
 
 ) {
     @Id
@@ -27,14 +29,15 @@ class Card(
     var id: Long? = null
 
 
-
 }
+
 fun Card.toResponse(): CardResponse {
     return CardResponse(
         id = id!!,
         title = title,
         description = description,
         writer = writer,
-        createdAt = createdAt
+        createdAt = createdAt,
+        completed = completed
     )
 }
