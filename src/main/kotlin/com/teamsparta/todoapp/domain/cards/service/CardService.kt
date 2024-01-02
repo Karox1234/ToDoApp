@@ -17,3 +17,5 @@ interface CardService {
 
     fun toggleCardCompletion(cardId: Long) : CardResponse
 }
+
+//완료여부 체크 제작 완료
