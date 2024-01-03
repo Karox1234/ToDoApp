@@ -1,9 +1,10 @@
 package com.teamsparta.todoapp.domain.comment.model
 
-import com.teamsparta.todoapp.domain.cards.dto.CardResponse
+
+import com.teamsparta.todoapp.domain.cards.model.Card
 import com.teamsparta.todoapp.domain.comment.dto.CommentResponse
 import jakarta.persistence.*
-import java.time.OffsetDateTime
+
 
 @Entity
 @Table(name = "comment")
@@ -16,6 +17,10 @@ class Comment(
 
     @Column(name = "password")
     var password: String? = null,
+
+    @ManyToOne
+    @JoinColumn(name = "cardId")
+    val card: Card
 
 ) {
     @Id

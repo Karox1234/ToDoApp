@@ -1,5 +1,9 @@
 package com.teamsparta.todoapp.domain.comment.service
 
+import com.teamsparta.todoapp.domain.cards.dto.CardResponse
+import com.teamsparta.todoapp.domain.cards.model.Card
+import com.teamsparta.todoapp.domain.cards.service.CardServiceImpl
+import com.teamsparta.todoapp.domain.comment.controller.toCard
 import com.teamsparta.todoapp.domain.comment.dto.CommentResponse
 import com.teamsparta.todoapp.domain.comment.dto.CreateCommentRequest
 import com.teamsparta.todoapp.domain.comment.dto.UpdateCommentRequest
@@ -15,36 +19,32 @@ import org.springframework.stereotype.Service
 @Service
 
 class CommentServiceImpl(
-    private val commentRepository: CommentRepository
+    private val commentRepository: CommentRepository,
+    private val cardService: CardServiceImpl
 ) : CommentService {
 
-//    override fun getAllCommentList(): List<CommentResponse> {
-//        return CommentRepository.findAll().map { it.toResponse() }
-//    }
-    //TODO:Controller 부분과 같은이유로 일단 보류
 
     override fun getCommentById(commentId: Long): CommentResponse {
-        val comment =
-            commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("Comment", commentId)
+        val comment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("Comment", commentId)
         return comment.toResponse()
     }
-
     @Transactional
-    override fun createComment(request: CreateCommentRequest): CommentResponse {
-        return commentRepository.save(
-            Comment(
-                description = request.description,
-                writer = request.writer,
-                password = request.password
-            )
-        ).toResponse()
-    }
+    override fun createComment(card: Card, request: CreateCommentRequest): Comment {
+        val cardResponse: CardResponse = cardService.getCardById(card.id!!)
+        val card: Card = cardResponse.toCard()
+        val comment = Comment(
+            card = card,
+            description = request.description,
+            writer = request.writer,
+            password = request.password
+        )
 
+        return commentRepository.save(comment)
+    }
     @Transactional
     override fun updateComment(commentId: Long, request: UpdateCommentRequest): CommentResponse {
         val comment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("Comment", commentId)
         val (description, writer) = request
-
 
         comment.description = description
         comment.writer = writer
@@ -54,8 +54,12 @@ class CommentServiceImpl(
 
     @Transactional
     override fun deleteComment(commentId: Long) {
-        val comment =
-            commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("Comment", commentId)
+        val comment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("Comment", commentId)
         commentRepository.delete(comment)
     }
+}
+
+fun CardResponse.toCard(): Card {
+    return Card(id = this.id, title = this.title, description = this.description,
+        writer = this.writer, createdAt = this.createdAt, completed = this.completed ?:false)
 }
