@@ -20,8 +20,7 @@ class CommentController(private val commentService: CommentService, private val 
 
     @PostMapping("/{cardId}")
     fun createComment(
-        @PathVariable cardId: Long,
-        @RequestBody createCommentRequest: CreateCommentRequest
+        @PathVariable cardId: Long, @RequestBody createCommentRequest: CreateCommentRequest
     ): ResponseEntity<CommentResponse> {
         val card: Card = cardService.getCardById(cardId).toCard()
         val createdComment: Comment = commentService.createComment(cardId, card, createCommentRequest)
@@ -41,12 +40,15 @@ class CommentController(private val commentService: CommentService, private val 
     }
 
 
-    @DeleteMapping("/{commentId}")
-    fun deleteComment(@PathVariable commentId: Long): ResponseEntity<Unit> {
-        commentService.deleteComment(commentId)
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
-
+    @DeleteMapping("/{cardId}/{commentId}")
+    fun deleteComment(
+        @PathVariable cardId: Long, @PathVariable commentId: Long, @RequestParam password: String
+    ): ResponseEntity<String> {
+        commentService.deleteComment(cardId, commentId, password)
+        val successMessage = "댓글 삭제 완료"
+        return ResponseEntity.status(HttpStatus.OK).body(successMessage)
     }
+
 
 }
 

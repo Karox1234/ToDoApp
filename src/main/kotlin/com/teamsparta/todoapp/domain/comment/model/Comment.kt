@@ -9,18 +9,13 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "comment")
 class Comment(
-    @Column(name = "description")
-    var description: String? = null,
+    @Column(name = "description") var description: String? = null,
 
-    @Column(name = "writer")
-    var writer: String? = null,
+    @Column(name = "writer") var writer: String? = null,
 
-    @Column(name = "password")
-    var password: String? = null,
+    @Column(name = "password") var password: String? = null,
 
-    @ManyToOne
-    @JoinColumn(name = "cardId")
-    val card: Card
+    @ManyToOne @JoinColumn(name = "cardId") val card: Card
 
 ) {
     @Id

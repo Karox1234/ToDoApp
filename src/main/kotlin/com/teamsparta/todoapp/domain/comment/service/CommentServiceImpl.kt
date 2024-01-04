@@ -20,15 +20,26 @@ class CommentServiceImpl(
     private val commentRepository: CommentRepository
 ) : CommentService {
 
+    @Transactional
+    fun checkCommentAndPassword(cardId: Long, commentId: Long, password: String): Comment {
+        val comment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("Comment", commentId)
+
+        if (comment.card.id != cardId) {
+            throw IllegalArgumentException("CardId에 맞는 CommentID가 not found")
+        }
+
+        if (password != comment.password) {
+            throw IllegalArgumentException("password error")
+        }
+
+        return comment
+    }
 
     @Transactional
     override fun createComment(cardId: Long, card: Card, request: CreateCommentRequest): Comment {
 
         val comment = Comment(
-            card = card,
-            description = request.description,
-            writer = request.writer,
-            password = request.password
+            card = card, description = request.description, writer = request.writer, password = request.password
         )
 
         return commentRepository.save(comment)
@@ -36,35 +47,29 @@ class CommentServiceImpl(
 
     @Transactional
     override fun updateComment(
-        cardId: Long,
-        commentId: Long,
-        request: UpdateCommentRequest,
-        password: String
+        cardId: Long, commentId: Long, request: UpdateCommentRequest, password: String
     ): CommentResponse {
-        val comment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("Comment", commentId)
-        if (comment.card.id != cardId) {
-            throw IllegalArgumentException("CardId에 맞는 CommentID가 not found")
-        }
-        if (password != comment.password) {
-            throw IllegalArgumentException("password error")
-        }
+        val comment = checkCommentAndPassword(cardId, commentId, password)
         comment.description = request.description
-
-
         return commentRepository.save(comment).toResponse()
     }
 
 
     @Transactional
-    override fun deleteComment(commentId: Long) {
-        val comment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("Comment", commentId)
+    override fun deleteComment(cardId: Long, commentId: Long, password: String) {
+        val comment = checkCommentAndPassword(cardId, commentId, password)
         commentRepository.delete(comment)
     }
 }
 
 fun CardResponse.toCard(): Card {
     return Card(
-        id = this.id, title = this.title, description = this.description,
-        writer = this.writer, createdAt = this.createdAt, completed = this.completed ?: false
+        id = this.id,
+        title = this.title,
+        description = this.description,
+        writer = this.writer,
+        createdAt = this.createdAt,
+        completed = this.completed ?: false
     )
 }
+
