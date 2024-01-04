@@ -2,8 +2,6 @@ package com.teamsparta.todoapp.domain.comment.service
 
 import com.teamsparta.todoapp.domain.cards.dto.CardResponse
 import com.teamsparta.todoapp.domain.cards.model.Card
-import com.teamsparta.todoapp.domain.cards.service.CardServiceImpl
-import com.teamsparta.todoapp.domain.comment.controller.toCard
 import com.teamsparta.todoapp.domain.comment.dto.CommentResponse
 import com.teamsparta.todoapp.domain.comment.dto.CreateCommentRequest
 import com.teamsparta.todoapp.domain.comment.dto.UpdateCommentRequest
@@ -19,19 +17,13 @@ import org.springframework.stereotype.Service
 @Service
 
 class CommentServiceImpl(
-    private val commentRepository: CommentRepository,
-    private val cardService: CardServiceImpl
+    private val commentRepository: CommentRepository
 ) : CommentService {
 
 
-    override fun getCommentById(commentId: Long): CommentResponse {
-        val comment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("Comment", commentId)
-        return comment.toResponse()
-    }
     @Transactional
-    override fun createComment(card: Card, request: CreateCommentRequest): Comment {
-        val cardResponse: CardResponse = cardService.getCardById(card.id!!)
-        val card: Card = cardResponse.toCard()
+    override fun createComment(cardId: Long, card: Card, request: CreateCommentRequest): Comment {
+
         val comment = Comment(
             card = card,
             description = request.description,
@@ -41,16 +33,27 @@ class CommentServiceImpl(
 
         return commentRepository.save(comment)
     }
-    @Transactional
-    override fun updateComment(commentId: Long, request: UpdateCommentRequest): CommentResponse {
-        val comment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("Comment", commentId)
-        val (description, writer) = request
 
-        comment.description = description
-        comment.writer = writer
+    @Transactional
+    override fun updateComment(
+        cardId: Long,
+        commentId: Long,
+        request: UpdateCommentRequest,
+        password: String
+    ): CommentResponse {
+        val comment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("Comment", commentId)
+        if (comment.card.id != cardId) {
+            throw IllegalArgumentException("CardId에 맞는 CommentID가 not found")
+        }
+        if (password != comment.password) {
+            throw IllegalArgumentException("password error")
+        }
+        comment.description = request.description
+
 
         return commentRepository.save(comment).toResponse()
     }
+
 
     @Transactional
     override fun deleteComment(commentId: Long) {
@@ -60,6 +63,8 @@ class CommentServiceImpl(
 }
 
 fun CardResponse.toCard(): Card {
-    return Card(id = this.id, title = this.title, description = this.description,
-        writer = this.writer, createdAt = this.createdAt, completed = this.completed ?:false)
+    return Card(
+        id = this.id, title = this.title, description = this.description,
+        writer = this.writer, createdAt = this.createdAt, completed = this.completed ?: false
+    )
 }
