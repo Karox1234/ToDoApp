@@ -1,6 +1,5 @@
 package com.teamsparta.todoapp.domain.comment.service
 
-import com.teamsparta.todoapp.domain.cards.dto.CardResponse
 import com.teamsparta.todoapp.domain.cards.model.Card
 import com.teamsparta.todoapp.domain.cards.repository.CardRepository
 import com.teamsparta.todoapp.domain.comment.dto.CommentResponse
@@ -18,8 +17,7 @@ import org.springframework.stereotype.Service
 @Service
 
 class CommentServiceImpl(
-    private val commentRepository: CommentRepository,
-    private val cardRepository: CardRepository
+    private val commentRepository: CommentRepository, private val cardRepository: CardRepository
 ) : CommentService {
 
     @Transactional
@@ -39,19 +37,14 @@ class CommentServiceImpl(
 
     @Transactional
     override fun createComment(cardId: Long, request: CreateCommentRequest): Comment {
-        val card: Card = cardRepository.findByIdOrNull(cardId)
-            ?: throw ModelNotFoundException("Card", cardId)
+        val card: Card = cardRepository.findByIdOrNull(cardId) ?: throw ModelNotFoundException("Card", cardId)
 
         val comment = Comment(
-            card = card,
-            description = request.description,
-            writer = request.writer,
-            password = request.password
+            card = card, description = request.description, writer = request.writer, password = request.password
         )
 
         return commentRepository.save(comment)
     }
-
 
 
     @Transactional

@@ -18,7 +18,7 @@ interface CardService {
 
     fun deleteCard(cardId: Long)
 
-    fun toggleCardCompletion(cardId: Long) : CardResponse
+    fun toggleCardCompletion(cardId: Long): CardResponse
 
 
 }
