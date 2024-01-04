@@ -14,4 +14,5 @@ interface CommentService {
 
     fun deleteComment(cardId: Long, commentId: Long, password: String)
 
+    fun getCommentsByCardId(cardId: Long): List<CommentResponse>
 }

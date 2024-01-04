@@ -60,6 +60,11 @@ class CommentServiceImpl(
         val comment = checkCommentAndPassword(cardId, commentId, password)
         commentRepository.delete(comment)
     }
+
+    override fun getCommentsByCardId(cardId: Long): List<CommentResponse> {
+        val comments = commentRepository.getCommentsByCardId(cardId)
+        return comments.map { it.toResponse() }
+    }
 }
 
 fun CardResponse.toCard(): Card {

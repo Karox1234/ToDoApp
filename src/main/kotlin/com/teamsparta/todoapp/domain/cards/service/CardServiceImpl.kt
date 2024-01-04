@@ -1,5 +1,6 @@
 package com.teamsparta.todoapp.domain.cards.service
 
+import com.teamsparta.todoapp.domain.cards.dto.CardAndCommentResponse
 import com.teamsparta.todoapp.domain.cards.dto.CardResponse
 import com.teamsparta.todoapp.domain.cards.dto.CreateCardRequest
 import com.teamsparta.todoapp.domain.cards.dto.UpdateCardRequest
@@ -11,17 +12,27 @@ import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
+import com.teamsparta.todoapp.domain.comment.service.CommentService
 
 @Service
 
 class CardServiceImpl(
-    private val cardRepository: CardRepository
+    private val cardRepository: CardRepository,
+    private val commentService: CommentService
 ) : CardService {
 
     override fun getAllCardList(): List<CardResponse> {
         return cardRepository.findAll().map { it.toResponse() }
     }
+    override fun getCommentsByCardId(cardId: Long): CardAndCommentResponse {
+        val cardResponse = cardRepository.getCardById(cardId).toResponse()
+        val comments = commentService.getCommentsByCardId(cardId)
 
+        return CardAndCommentResponse(
+            card = cardResponse,
+            comments = comments
+        )
+    }
     override fun getCardById(cardId: Long): CardResponse {
         val card = cardRepository.findByIdOrNull(cardId) ?: throw ModelNotFoundException("Card", cardId)
         return card.toResponse()
@@ -63,6 +74,7 @@ class CardServiceImpl(
         card.completed = !card.completed
         return card.toResponse()
     }
+
 
 }
 

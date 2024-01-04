@@ -1,5 +1,6 @@
 package com.teamsparta.todoapp.domain.cards.controller
 
+import com.teamsparta.todoapp.domain.cards.dto.CardAndCommentResponse
 import com.teamsparta.todoapp.domain.cards.dto.CardResponse
 import com.teamsparta.todoapp.domain.cards.dto.CreateCardRequest
 import com.teamsparta.todoapp.domain.cards.dto.UpdateCardRequest
@@ -14,49 +15,41 @@ class CardController(private val cardService: CardService) {
 
     @GetMapping
     fun getCardList(): ResponseEntity<List<CardResponse>> {
-        return ResponseEntity
-            .status(HttpStatus.OK).body(cardService.getAllCardList())
+        return ResponseEntity.status(HttpStatus.OK).body(cardService.getAllCardList())
 
     }
 
     @GetMapping("/{cardId}")
-    fun getCard(@PathVariable cardId: Long): ResponseEntity<CardResponse> {
-        return ResponseEntity
-            .status(HttpStatus.OK).body(cardService.getCardById(cardId))
-
+    fun getCard(@PathVariable cardId: Long): ResponseEntity<CardAndCommentResponse> {
+        val cardAndCommentResponse = cardService.getCommentsByCardId(cardId)
+        return ResponseEntity.status(HttpStatus.OK).body(cardAndCommentResponse)
     }
 
     @PostMapping
     fun createCard(@RequestBody createCardRequest: CreateCardRequest): ResponseEntity<CardResponse> {
-        return ResponseEntity
-            .status(HttpStatus.CREATED).body(cardService.createCard(createCardRequest))
+        return ResponseEntity.status(HttpStatus.CREATED).body(cardService.createCard(createCardRequest))
 
     }
 
     @PutMapping("/{cardId}")
     fun updateCard(
-        @PathVariable cardId: Long,
-        @RequestBody updateCardRequest: UpdateCardRequest
+        @PathVariable cardId: Long, @RequestBody updateCardRequest: UpdateCardRequest
     ): ResponseEntity<CardResponse> {
-        return ResponseEntity
-            .status(HttpStatus.OK).body(cardService.updateCard(cardId, updateCardRequest))
+        return ResponseEntity.status(HttpStatus.OK).body(cardService.updateCard(cardId, updateCardRequest))
 
     }
 
     @DeleteMapping("/{cardId}")
     fun deleteCard(@PathVariable cardId: Long): ResponseEntity<Unit> {
         cardService.deleteCard(cardId)
-        return ResponseEntity
-            .status(HttpStatus.NO_CONTENT).build()
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
 
     }
 
     @PatchMapping("/{cardId}/toggle")
     fun toggleCardCompletion(@PathVariable cardId: Long): ResponseEntity<CardResponse> {
-        return ResponseEntity
-            .status(HttpStatus.OK).body(cardService.toggleCardCompletion(cardId))
+        return ResponseEntity.status(HttpStatus.OK).body(cardService.toggleCardCompletion(cardId))
     }
 
 
 }
-//완료여부 까지 작업완료
