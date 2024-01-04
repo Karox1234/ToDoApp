@@ -2,6 +2,7 @@ package com.teamsparta.todoapp.domain.comment.service
 
 import com.teamsparta.todoapp.domain.cards.dto.CardResponse
 import com.teamsparta.todoapp.domain.cards.model.Card
+import com.teamsparta.todoapp.domain.cards.repository.CardRepository
 import com.teamsparta.todoapp.domain.comment.dto.CommentResponse
 import com.teamsparta.todoapp.domain.comment.dto.CreateCommentRequest
 import com.teamsparta.todoapp.domain.comment.dto.UpdateCommentRequest
@@ -17,7 +18,8 @@ import org.springframework.stereotype.Service
 @Service
 
 class CommentServiceImpl(
-    private val commentRepository: CommentRepository
+    private val commentRepository: CommentRepository,
+    private val cardRepository: CardRepository
 ) : CommentService {
 
     @Transactional
@@ -36,14 +38,21 @@ class CommentServiceImpl(
     }
 
     @Transactional
-    override fun createComment(cardId: Long, card: Card, request: CreateCommentRequest): Comment {
+    override fun createComment(cardId: Long, request: CreateCommentRequest): Comment {
+        val card: Card = cardRepository.findByIdOrNull(cardId)
+            ?: throw ModelNotFoundException("Card", cardId)
 
         val comment = Comment(
-            card = card, description = request.description, writer = request.writer, password = request.password
+            card = card,
+            description = request.description,
+            writer = request.writer,
+            password = request.password
         )
 
         return commentRepository.save(comment)
     }
+
+
 
     @Transactional
     override fun updateComment(
@@ -65,16 +74,5 @@ class CommentServiceImpl(
         val comments = commentRepository.getCommentsByCardId(cardId)
         return comments.map { it.toResponse() }
     }
-}
-
-fun CardResponse.toCard(): Card {
-    return Card(
-        id = this.id,
-        title = this.title,
-        description = this.description,
-        writer = this.writer,
-        createdAt = this.createdAt,
-        completed = this.completed ?: false
-    )
 }
 

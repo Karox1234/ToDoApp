@@ -8,7 +8,7 @@ import com.teamsparta.todoapp.domain.comment.dto.UpdateCommentRequest
 import com.teamsparta.todoapp.domain.comment.model.Comment
 
 interface CommentService {
-    fun createComment(cardId: Long, card: Card, request: CreateCommentRequest): Comment
+    fun createComment(cardId: Long, request: CreateCommentRequest): Comment
 
     fun updateComment(cardId: Long, commentId: Long, request: UpdateCommentRequest, password: String): CommentResponse
 
