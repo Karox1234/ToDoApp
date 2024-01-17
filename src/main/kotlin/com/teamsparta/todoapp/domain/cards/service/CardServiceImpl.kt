@@ -45,10 +45,10 @@ class CardServiceImpl(
                 title = request.title,
                 description = request.description,
                 writer = request.writer,
-                createdAt = OffsetDateTime.now(),
             )
         ).toResponse()
     }
+
 
     @Transactional
     override fun updateCard(cardId: Long, request: UpdateCardRequest): CardResponse {
@@ -59,7 +59,7 @@ class CardServiceImpl(
         card.description = description
         card.writer = writer
 
-        return cardRepository.save(card).toResponse()
+        return card.toResponse()
     }
 
     @Transactional

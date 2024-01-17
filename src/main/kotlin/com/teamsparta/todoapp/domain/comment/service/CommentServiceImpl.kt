@@ -53,7 +53,7 @@ class CommentServiceImpl(
     ): CommentResponse {
         val comment = checkCommentAndPassword(cardId, commentId, password)
         comment.description = request.description
-        return commentRepository.save(comment).toResponse()
+        return comment.toResponse()
     }
 
 

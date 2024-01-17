@@ -2,9 +2,14 @@ package com.teamsparta.todoapp.domain.cards.model
 
 import com.teamsparta.todoapp.domain.cards.dto.CardResponse
 import jakarta.persistence.*
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.OffsetDateTime
 
+
+
 @Entity
+@EntityListeners(AuditingEntityListener::class)
 @Table(name = "card")
 class Card(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
@@ -15,7 +20,9 @@ class Card(
 
     @Column(name = "writer") var writer: String? = null,
 
-    @Column(name = "createdAt") var createdAt: OffsetDateTime,
+    @CreatedDate
+    @Column(name = "created_at")
+    var createdAt: OffsetDateTime? = OffsetDateTime.now(),
 
     @Column(name = "completed") var completed: Boolean = false,
 
