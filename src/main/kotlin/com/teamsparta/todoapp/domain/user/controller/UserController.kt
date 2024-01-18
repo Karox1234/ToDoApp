@@ -5,6 +5,7 @@ import com.teamsparta.todoapp.domain.user.dto.*
 import com.teamsparta.todoapp.domain.user.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 
@@ -13,8 +14,11 @@ class UserController(
     private val userService: UserService
 ) {
     @PostMapping("/login")
-    fun login(@RequestBody loginRequest: LoginRequest) : ResponseEntity<LoginResponse> {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.login(loginRequest))
+    fun signIn(@RequestBody loginRequest: LoginRequest): ResponseEntity<LoginResponse> {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(userService.login(loginRequest))
+
     }
 
     @PostMapping("/signup")
@@ -25,6 +29,7 @@ class UserController(
     }
 
     @PutMapping("/users/{userId}/profile")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     fun updateUserProfile(@PathVariable userId: Long,
                           @RequestBody updateUserProfileRequest: UpdateUserProfileRequest
     ): ResponseEntity<UserResponse> {

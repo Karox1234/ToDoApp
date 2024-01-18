@@ -7,7 +7,7 @@ interface UserService {
 
     fun signUp(request: SignUpRequest): UserResponse
 
-    fun updateUserProfile(userId: Long, request: UpdateUserProfileRequest): UserResponse
+    fun updateUserProfile(userId: Long, updateUserProfileRequest: UpdateUserProfileRequest): UserResponse
 
     fun login(request: LoginRequest): LoginResponse
 }

@@ -25,13 +25,13 @@ class JwtPlugin(
         }
     }
 
-    fun generateAccessToken(subject: String, role: String, email: String): String {
-        return generateToken(subject, role, Duration.ofHours(accessTokenExpirationHour))
+    fun generateAccessToken(subject: String, email: String, role: String): String {
+        return generateToken(subject, email, role,Duration.ofHours(accessTokenExpirationHour))
     }
 
 
-    private fun generateToken(subject: String, role: String, expirationPeriod: Duration): String {
-        val claims: Claims = Jwts.claims().add(mapOf("role" to role)).build()
+    private fun generateToken(subject: String, email: String, role:String, expirationPeriod: Duration): String {
+        val claims: Claims = Jwts.claims().add(mapOf("email" to email,"role" to role)).build()
 
         val now = Instant.now()
         val key = Keys.hmacShaKeyFor(secret.toByteArray(StandardCharsets.UTF_8))

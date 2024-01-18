@@ -1,4 +1,4 @@
-package com.teamsparta.todoapp.infra.security.jwt
+package com.teamsparta.todoapp.infra.security
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

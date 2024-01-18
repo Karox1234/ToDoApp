@@ -6,7 +6,7 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "app_user")
-class User(
+class UserEntity(
     @Column(name = "email", nullable = false)
     val email: String,
 
@@ -26,7 +26,7 @@ class User(
     var id: Long? = null
 }
 
-fun User.toResponse(): UserResponse {
+fun UserEntity.toResponse(): UserResponse {
     return UserResponse(
         id = id!!,
         nickname = profile.nickname,
