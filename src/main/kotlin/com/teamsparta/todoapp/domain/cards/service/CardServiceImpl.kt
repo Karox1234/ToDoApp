@@ -49,9 +49,10 @@ class CardServiceImpl(
     @Transactional
     override fun updateCard(cardId: Long, userId: Long, request: UpdateCardRequest): CardResponse {
         val card = cardRepository.findByIdOrNull(cardId) ?: throw ModelNotFoundException("Card", cardId)
-        //카드작성유저와 현재 유저가 같은지 검증과정
+        //카드 작성 유저와 현재 유저가 같은지 검증과정
         if (card.user.id != userId) {
             throw AccessDeniedException("You do not have permission to update this card.")
+            //AccessDeniedException은 customAccessDeniedHandler에서 따로 조절
         }
         val (title, description) = request
         card.title = title
@@ -65,7 +66,7 @@ class CardServiceImpl(
     override fun deleteCard(cardId: Long,userId: Long) {
         val card = cardRepository.findByIdOrNull(cardId) ?: throw ModelNotFoundException("Card", cardId)
         if (card.user.id != userId) {
-            throw AccessDeniedException("You do not have permission to update this card.")
+            throw AccessDeniedException("You do not have permission to delete this card.")
         }
         cardRepository.delete(card)
     }
