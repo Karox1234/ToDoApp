@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import com.teamsparta.todoapp.domain.user.model.UserEntity
+import com.teamsparta.todoapp.domain.user.model.UserRole
 import com.teamsparta.todoapp.domain.user.repository.UserRepository
 import org.springframework.security.access.AccessDeniedException
 
@@ -33,9 +34,11 @@ class CardServiceImpl(
     @Transactional
     override fun createCard(request: CreateCardRequest,userId: Long): CardResponse {
         val user : UserEntity = userRepository.findByIdOrNull(userId) ?: throw ModelNotFoundException("User", userId)
-        if (user.cardCount >= 3) {
-            throw Exception("User can have a maximum of 3 cards.")
-        } //customExeption을 만들기 위한 상황 추가
+        if (user.role == UserRole.USER) {
+            if (user.cardCount >= 3) {
+                throw Exception("유저는 세개 이상의 카드를 만들수 없습니다")
+            } //customExeption을 만들기 위한 상황 추가 , 추후 ROLE관련 상황으로도 이용하기 위해 ROLE조건도 추가
+        }
         val savedCard = cardRepository.save(
             Card(
                 title = request.title,
@@ -44,7 +47,7 @@ class CardServiceImpl(
             )
         )
 
-        user.cardCount++
+            user.cardCount++
 
         return savedCard.toResponse()
     }
