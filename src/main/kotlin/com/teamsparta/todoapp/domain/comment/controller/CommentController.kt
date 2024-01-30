@@ -6,40 +6,50 @@ import com.teamsparta.todoapp.domain.comment.dto.UpdateCommentRequest
 import com.teamsparta.todoapp.domain.comment.model.Comment
 import com.teamsparta.todoapp.domain.comment.model.toResponse
 import com.teamsparta.todoapp.domain.comment.service.CommentService
+import com.teamsparta.todoapp.infra.security.UserPrincipal
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
-@RequestMapping("/comment")
+@RequestMapping("/comments")
 @RestController
 
 class CommentController(private val commentService: CommentService) {
 
+    @GetMapping("/{cardId}")
+    fun getCommentsByPost(@PathVariable cardId: Long): ResponseEntity<List<CommentResponse>> {
+        val comments = commentService.getCommentsByCard(cardId)
+        return ResponseEntity.ok(comments)
+    }
+
     @PostMapping("/{cardId}")
     fun createComment(
-        @PathVariable cardId: Long, @RequestBody createCommentRequest: CreateCommentRequest
+        @PathVariable cardId: Long, @RequestBody createCommentRequest: CreateCommentRequest, @AuthenticationPrincipal user: UserPrincipal
     ): ResponseEntity<CommentResponse> {
-        val createdComment: Comment = commentService.createComment(cardId, createCommentRequest)
+        val userId = user.id
+        val createdComment: Comment = commentService.createComment(cardId, createCommentRequest,userId)
         return ResponseEntity.status(HttpStatus.CREATED).body(createdComment.toResponse())
     }
 
-    @PutMapping("/{cardId}/{commentId}")
+    @PutMapping("/{commentId}")
     fun updateComment(
-        @PathVariable cardId: Long,
         @PathVariable commentId: Long,
         @RequestBody updateCommentRequest: UpdateCommentRequest,
-        @RequestParam password: String
+        @AuthenticationPrincipal user: UserPrincipal,
     ): ResponseEntity<CommentResponse> {
-        val updatedComment = commentService.updateComment(cardId, commentId, updateCommentRequest, password)
+        val userId = user.id
+        val updatedComment = commentService.updateComment(commentId, updateCommentRequest, userId)
         return ResponseEntity.status(HttpStatus.OK).body(updatedComment)
     }
 
 
-    @DeleteMapping("/{cardId}/{commentId}")
+    @DeleteMapping("/{commentId}")
     fun deleteComment(
-        @PathVariable cardId: Long, @PathVariable commentId: Long, @RequestParam password: String
+        @PathVariable commentId: Long, @AuthenticationPrincipal user: UserPrincipal,
     ): ResponseEntity<String> {
-        commentService.deleteComment(cardId, commentId, password)
+        val userId = user.id
+        commentService.deleteComment(commentId,userId)
         val successMessage = "댓글 삭제 완료"
         return ResponseEntity.status(HttpStatus.OK).body(successMessage)
     }

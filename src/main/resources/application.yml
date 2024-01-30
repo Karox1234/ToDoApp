@@ -1,5 +1,33 @@
 spring:
+  jackson:
+    time-zone: UTC
   datasource:
     url: jdbc:postgresql://db.tqyfnuxxlrwjxwwlapht.supabase.co:5432/postgres
     username: postgres
     password: sb2005@sb2005
+
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
+        orm:
+          jdbc:
+            bind: trace
+      springframework:
+        security: debug
+auth:
+  jwt:
+    issuer: team.sparta.com
+    secret: PO4c8z41Hia5gJG3oeuFJMRYBB4Ws4aZ
+    accessTokenExpirationHour: 168
