@@ -9,7 +9,6 @@ import com.teamsparta.todoapp.domain.comment.service.CommentService
 import com.teamsparta.todoapp.infra.security.UserPrincipal
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
@@ -25,7 +24,6 @@ class CommentController(private val commentService: CommentService) {
     }
 
     @PostMapping("/{cardId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     fun createComment(
         @PathVariable cardId: Long, @RequestBody createCommentRequest: CreateCommentRequest, @AuthenticationPrincipal user: UserPrincipal
     ): ResponseEntity<CommentResponse> {
@@ -35,7 +33,6 @@ class CommentController(private val commentService: CommentService) {
     }
 
     @PutMapping("/{commentId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     fun updateComment(
         @PathVariable commentId: Long,
         @RequestBody updateCommentRequest: UpdateCommentRequest,
@@ -48,7 +45,6 @@ class CommentController(private val commentService: CommentService) {
 
 
     @DeleteMapping("/{commentId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     fun deleteComment(
         @PathVariable commentId: Long, @AuthenticationPrincipal user: UserPrincipal,
     ): ResponseEntity<String> {

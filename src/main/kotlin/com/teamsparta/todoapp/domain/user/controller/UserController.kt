@@ -5,7 +5,6 @@ import com.teamsparta.todoapp.domain.user.dto.*
 import com.teamsparta.todoapp.domain.user.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 
@@ -29,7 +28,6 @@ class UserController(
     }
 
     @PutMapping("/users/{userId}/profile")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     fun updateUserProfile(@PathVariable userId: Long,
                           @RequestBody updateUserProfileRequest: UpdateUserProfileRequest
     ): ResponseEntity<UserResponse> {

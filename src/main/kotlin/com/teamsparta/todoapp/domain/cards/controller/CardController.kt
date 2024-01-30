@@ -7,7 +7,6 @@ import com.teamsparta.todoapp.domain.cards.service.CardService
 import com.teamsparta.todoapp.infra.security.UserPrincipal
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
@@ -28,7 +27,6 @@ class CardController(private val cardService: CardService) {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     fun createCard(
         @AuthenticationPrincipal user: UserPrincipal,
         @RequestBody createCardRequest: CreateCardRequest
@@ -39,7 +37,6 @@ class CardController(private val cardService: CardService) {
     }
 
     @PutMapping("/{cardId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     fun updateCard(
         @PathVariable cardId: Long,
         @RequestBody updateCardRequest: UpdateCardRequest,
@@ -50,7 +47,6 @@ class CardController(private val cardService: CardService) {
     }
 
     @DeleteMapping("/{cardId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     fun deleteCard(@PathVariable cardId: Long,@AuthenticationPrincipal user: UserPrincipal): ResponseEntity<Unit> {
         val userId= user.id
         cardService.deleteCard(cardId,userId)
@@ -59,7 +55,6 @@ class CardController(private val cardService: CardService) {
     }
 
     @PatchMapping("/{cardId}/toggle")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     fun toggleCardCompletion(@PathVariable cardId: Long,@AuthenticationPrincipal user: UserPrincipal): ResponseEntity<CardResponse> {
         val userId= user.id
         return ResponseEntity.status(HttpStatus.OK).body(cardService.toggleCardCompletion(cardId,userId))
