@@ -33,6 +33,9 @@ class CardServiceImpl(
     @Transactional
     override fun createCard(request: CreateCardRequest,userId: Long): CardResponse {
         val user : UserEntity = userRepository.findByIdOrNull(userId) ?: throw ModelNotFoundException("User", userId)
+        if (user.cardCount >= 3) {
+            throw Exception("User can have a maximum of 3 cards.")
+        } //customExeption을 만들기 위한 상황 추가
         val savedCard = cardRepository.save(
             Card(
                 title = request.title,
@@ -40,6 +43,8 @@ class CardServiceImpl(
                 user = user
             )
         )
+
+        user.cardCount++
 
         return savedCard.toResponse()
     }
