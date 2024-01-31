@@ -29,4 +29,9 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorResponse(e.message))
     }
 
+    @ExceptionHandler(CardOverException::class)
+    fun handleCardOverException(e:CardOverException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse(e.message))
+    }
+
 }
