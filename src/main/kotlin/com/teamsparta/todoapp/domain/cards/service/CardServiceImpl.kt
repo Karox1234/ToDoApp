@@ -6,11 +6,14 @@ import com.teamsparta.todoapp.domain.cards.dto.UpdateCardRequest
 import com.teamsparta.todoapp.domain.cards.model.Card
 import com.teamsparta.todoapp.domain.cards.model.toResponse
 import com.teamsparta.todoapp.domain.cards.repository.CardRepository
+import com.teamsparta.todoapp.domain.exception.CardOverException
+//import com.teamsparta.todoapp.domain.exception.CardOverException
 import com.teamsparta.todoapp.domain.exception.ModelNotFoundException
 import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import com.teamsparta.todoapp.domain.user.model.UserEntity
+import com.teamsparta.todoapp.domain.user.model.UserRole
 import com.teamsparta.todoapp.domain.user.repository.UserRepository
 import org.springframework.security.access.AccessDeniedException
 
@@ -33,6 +36,11 @@ class CardServiceImpl(
     @Transactional
     override fun createCard(request: CreateCardRequest,userId: Long): CardResponse {
         val user : UserEntity = userRepository.findByIdOrNull(userId) ?: throw ModelNotFoundException("User", userId)
+        if (user.role == UserRole.USER) {
+            if (user.cardCount >= 3) {
+                throw CardOverException("유저는 카드를 세개 이상 만들수 없습니다.")
+            } //customExeption을 만들기 위한 상황 추가 , 추후 ROLE관련 상황으로도 이용하기 위해 ROLE조건도 추가
+        }
         val savedCard = cardRepository.save(
             Card(
                 title = request.title,
@@ -40,6 +48,8 @@ class CardServiceImpl(
                 user = user
             )
         )
+
+            user.cardCount++
 
         return savedCard.toResponse()
     }
@@ -64,10 +74,12 @@ class CardServiceImpl(
 
     @Transactional
     override fun deleteCard(cardId: Long,userId: Long) {
+        val user : UserEntity = userRepository.findByIdOrNull(userId) ?: throw ModelNotFoundException("User", userId)
         val card = cardRepository.findByIdOrNull(cardId) ?: throw ModelNotFoundException("Card", cardId)
         if (card.user.id != userId) {
             throw AccessDeniedException("You do not have permission to delete this card.")
         }
+        user.cardCount--
         cardRepository.delete(card)
     }
 

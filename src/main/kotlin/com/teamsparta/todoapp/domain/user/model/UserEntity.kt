@@ -20,6 +20,9 @@ class UserEntity(
     @Column(name = "role", nullable = false)
     val role: UserRole,
 
+    @Column(name = "card_count", nullable = false)
+    var cardCount: Int = 0
+
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
