@@ -15,8 +15,6 @@ import java.time.OffsetDateTime
 @EntityListeners(AuditingEntityListener::class)
 @Table(name = "card")
 class Card(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
-
     @Column(name = "title", nullable = false) var title: String,
 
     @Column(name = "description") var description: String? = null,
@@ -35,7 +33,11 @@ class Card(
     val user: UserEntity
 
     )
-
+{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null
+}
 
 fun Card.toResponse(): CardResponse {
     return CardResponse(
