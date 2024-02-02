@@ -3,6 +3,7 @@ package com.teamsparta.todoapp.domain.user.controller
 
 import com.teamsparta.todoapp.domain.user.dto.*
 import com.teamsparta.todoapp.domain.user.service.UserService
+import org.apache.coyote.Response
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -34,5 +35,12 @@ class UserController(
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(userService.updateUserProfile(userId, updateUserProfileRequest))
+    }
+
+    @GetMapping("/checkNickname")
+    fun checkNickname(@RequestParam nickname: String):
+            ResponseEntity<String> {
+        userService.beforeSignUpCheckNickname(BeforeSignUpCheckNicknameRequest(nickname))
+        return ResponseEntity.ok("사용 가능한 닉네임 입니다")
     }
 }

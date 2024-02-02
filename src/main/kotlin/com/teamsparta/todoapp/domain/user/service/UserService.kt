@@ -10,4 +10,6 @@ interface UserService {
     fun updateUserProfile(userId: Long, updateUserProfileRequest: UpdateUserProfileRequest): UserResponse
 
     fun login(request: LoginRequest): LoginResponse
+
+    fun beforeSignUpCheckNickname(request: BeforeSignUpCheckNicknameRequest)
 }

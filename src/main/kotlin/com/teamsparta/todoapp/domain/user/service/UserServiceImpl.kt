@@ -23,7 +23,7 @@ class UserServiceImpl(
     override fun login(request: LoginRequest): LoginResponse {
         val user = userRepository.findByEmail(request.email) ?: throw ModelNotFoundException("User", null )
         if (user.role.name != request.role || !passwordEncoder.matches(request.password, user.password) ) {
-            throw InvalidCredentialException()
+            throw InvalidCredentialException("비밀번호가 틀립니다")
         }
 
         return LoginResponse(
@@ -33,6 +33,12 @@ class UserServiceImpl(
                 role = user.role.name
             )
         )
+    }
+
+    override fun beforeSignUpCheckNickname(request: BeforeSignUpCheckNicknameRequest) {
+        if(userRepository.existsByProfileNickname(request.nickname)){
+            throw IllegalStateException("이미 사용중인 Nickname 입니다.")
+        } //같은 닉네임 사용 불가 추가
     }
 
     override fun signUp(request: SignUpRequest): UserResponse {

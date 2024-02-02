@@ -1,5 +1,6 @@
 package com.teamsparta.todoapp.domain.user.dto
 
+import com.teamsparta.todoapp.domain.user.model.Profile
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class SignUpRequest(
