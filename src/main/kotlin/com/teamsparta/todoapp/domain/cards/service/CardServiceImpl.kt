@@ -73,7 +73,8 @@ class CardServiceImpl(
                 Card(
                     title = request.title,
                     description = request.description,
-                    user = user
+                    user = user,
+                    writer = user.profile.nickname
                 )
             )
 
