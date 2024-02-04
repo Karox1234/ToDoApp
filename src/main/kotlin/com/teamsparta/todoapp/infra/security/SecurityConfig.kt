@@ -32,6 +32,8 @@ class SecurityConfig(
                     "/signup",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
+                    "/checkNickname",
+                    "/mail",
                 ).permitAll()
                     .anyRequest().authenticated()
             }
