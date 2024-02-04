@@ -28,7 +28,6 @@ class CardServiceImpl(
 //    }
 
     override fun getAllCardList(): List<CardResponse> = cardRepository.findAll().map {it.toResponse()}
-//toResponse 사용 안하고 바꿔보기
 
 
 //    override fun getCardById(cardId: Long): CardResponse {
