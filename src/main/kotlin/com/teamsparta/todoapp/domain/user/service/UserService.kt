@@ -12,4 +12,6 @@ interface UserService {
     fun login(request: LoginRequest): LoginResponse
 
     fun beforeSignUpCheckNickname(request: BeforeSignUpCheckNicknameRequest)
+
+    fun sendMail(request: SendMail)
 }

@@ -7,17 +7,25 @@ import com.teamsparta.todoapp.domain.exception.ModelNotFoundException
 import com.teamsparta.todoapp.domain.user.dto.*
 import com.teamsparta.todoapp.domain.user.model.*
 import com.teamsparta.todoapp.domain.user.repository.UserRepository
+import com.teamsparta.todoapp.domain.user.repository.VerificationRepository
 import com.teamsparta.todoapp.infra.security.jwt.JwtPlugin
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.mail.javamail.JavaMailSender
+import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import kotlin.random.Random
 
 
+@Transactional
 @Service
 class UserServiceImpl(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val jwtPlugin: JwtPlugin
+    private val jwtPlugin: JwtPlugin,
+    private val javaMailSender: JavaMailSender,
+    private val verificationRepository: VerificationRepository
 ) : UserService {
 
     override fun login(request: LoginRequest): LoginResponse {
@@ -41,11 +49,53 @@ class UserServiceImpl(
         } //같은 닉네임 사용 불가 추가
     }
 
+    override fun sendMail(request: SendMail) {
+        val verificationCode = Random.nextInt(100000, 999999)
+        val verificationInfo = Verification(
+            email = request.email,
+            verificationCode = verificationCode,
+            expirationTime = System.currentTimeMillis() + 5 * 60 * 1000 // 5분
+        )
+        verificationRepository.save(verificationInfo)
+
+
+        val subject = "${request.email}님 환영합니다, 인증 번호 확인 메일입니다"
+        val content = "인증 번호: $verificationCode"
+
+        val message = javaMailSender.createMimeMessage()
+        val messageDetail = MimeMessageHelper(message)
+
+        messageDetail.setTo(request.email)
+        messageDetail.setSubject(subject)
+        messageDetail.setText(content)
+
+        javaMailSender.send(message)
+    }
+
     override fun signUp(request: SignUpRequest): UserResponse {
+
+        // email에 맞는 인증번호인지 조회
+        val verificationInfo = verificationRepository.findByEmailAndVerificationCode(request.email, request.verificationCode)
+            ?: throw IllegalArgumentException("잘못된 인증번호 입니다.")
+
+        // 유효시간 검증
+        if (System.currentTimeMillis() > verificationInfo.expirationTime) {
+            throw IllegalArgumentException("인증번호가 만료 되었습니다.")
+        }
+
         if (userRepository.existsByEmail(request.email)) {
             throw IllegalStateException("Email is already in use")
         }
-        return userRepository.save(
+
+        if(userRepository.existsByProfileNickname(request.nickname)){
+            throw IllegalStateException("이미 사용중인 Nickname 입니다.")
+        }
+
+        if(request.password.windowed(4,1).any { it in request.nickname} ||
+            request.nickname.windowed(4,1).any { it in request.password })
+            throw IllegalArgumentException("닉네임과 비밀번호는 서로의 값은 포함해선 안됩니다.")
+
+        val saveUser= userRepository.save(
             UserEntity(
                 email = request.email,
                 password = passwordEncoder.encode(request.password),
@@ -58,14 +108,23 @@ class UserServiceImpl(
                     else -> throw IllegalArgumentException("Invalid role")
                 }
             )
-        ).toResponse()
+        )
+//        verificationRepository.delete(verificationInfo) 스케쥴러 구현후 생각해보니 굳이 지금 지울 필요가 없다 판단!
+        return saveUser.toResponse()
     }
+// 현재는 인증과 회원가입 로직이 하나로 합쳐져 있지만, 프론트와 협업을 가정에 두면 보통 두개는 따로 이뤄지는 경우가 많아서 분리하는게 맞는거 같습니다!
+
 
     override fun updateUserProfile(userId: Long, updateUserProfileRequest: UpdateUserProfileRequest): UserResponse {
         val user = userRepository.findByIdOrNull(userId) ?: throw ModelNotFoundException("User", userId)
-        user.profile = Profile(
-            nickname = updateUserProfileRequest.nickname
-        )
+
+        val newNickname = updateUserProfileRequest.nickname
+
+        if (newNickname != user.profile.nickname) {
+            user.profile = Profile(
+                nickname = newNickname
+            )
+        }
 
         return userRepository.save(user).toResponse()
     }
