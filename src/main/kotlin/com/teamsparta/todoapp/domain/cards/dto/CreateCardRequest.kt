@@ -1,6 +1,11 @@
 package com.teamsparta.todoapp.domain.cards.dto
 
+import jakarta.validation.constraints.Size
+
 data class CreateCardRequest(
-    val title: String, val description: String?,
+    @field:Size(max = 500)
+    val title: String,
+    @field:Size(max = 5000)
+    val description: String?,
 )
 

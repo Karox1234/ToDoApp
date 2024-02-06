@@ -1,19 +1,29 @@
 package com.teamsparta.todoapp.domain.cards.controller
 
-import com.teamsparta.todoapp.domain.cards.dto.CardResponse
-import com.teamsparta.todoapp.domain.cards.dto.CreateCardRequest
-import com.teamsparta.todoapp.domain.cards.dto.UpdateCardRequest
+import com.teamsparta.todoapp.domain.cards.dto.*
 import com.teamsparta.todoapp.domain.cards.service.CardService
 import com.teamsparta.todoapp.infra.security.UserPrincipal
+import io.swagger.v3.oas.annotations.Parameter
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
+
 @RequestMapping("/cards")
 @RestController
 class CardController(private val cardService: CardService) {
+
+    @GetMapping("/page")
+    fun getCardPage(
+        @RequestParam("pageNumber", defaultValue = "1") pageNumber: Int,
+        @RequestParam("pageSize", defaultValue = "5") pageSize: Int,
+        @RequestParam("sortField",required = false, defaultValue = "title") sortField: String?,
+        @RequestParam("sortOrder",required = false) sortOrder:Sort.Direction
+    ): ResponseEntity<CardPageResponse> {
+        return ResponseEntity.status(HttpStatus.OK).body(cardService.getCardPage(pageNumber,pageSize,sortField,sortOrder))
+    }
 
     @GetMapping
     fun getCardList(): ResponseEntity<List<CardResponse>> {

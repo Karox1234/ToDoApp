@@ -1,10 +1,12 @@
 package com.teamsparta.todoapp.domain.cards.service
 
-import com.teamsparta.todoapp.domain.cards.dto.CardResponse
-import com.teamsparta.todoapp.domain.cards.dto.CreateCardRequest
-import com.teamsparta.todoapp.domain.cards.dto.UpdateCardRequest
+import com.teamsparta.todoapp.domain.cards.dto.*
+import org.springframework.data.domain.Sort
 
 interface CardService {
+
+    fun getCardPage(pageNumber: Int, pageSize: Int, sortField: String?, sortOrder: Sort.Direction): CardPageResponse
+
     fun getAllCardList(): List<CardResponse>
 
     fun getCardById(cardId: Long): CardResponse
