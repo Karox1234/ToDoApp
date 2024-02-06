@@ -19,6 +19,7 @@ class Card(
 
     @Column(name = "completed") var completed: Boolean = false,
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
