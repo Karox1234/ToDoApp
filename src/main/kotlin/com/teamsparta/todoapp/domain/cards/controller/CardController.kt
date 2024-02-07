@@ -20,7 +20,7 @@ class CardController(private val cardService: CardService) {
         @RequestParam("pageNumber", defaultValue = "1") pageNumber: Int,
         @RequestParam("pageSize", defaultValue = "5") pageSize: Int,
         @RequestParam("sortField",required = false, defaultValue = "title") sortField: String?,
-        @RequestParam("sortOrder",required = false) sortOrder:Sort.Direction
+        @RequestParam("sortOrder") sortOrder:Sort.Direction
     ): ResponseEntity<CardPageResponse> {
         return ResponseEntity.status(HttpStatus.OK).body(cardService.getCardPage(pageNumber,pageSize,sortField,sortOrder))
     }
