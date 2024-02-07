@@ -1,6 +1,7 @@
 package com.teamsparta.todoapp.domain.cards.model
 
 import com.teamsparta.todoapp.domain.cards.dto.CardResponse
+import com.teamsparta.todoapp.domain.image.model.Image
 import com.teamsparta.todoapp.domain.user.model.UserEntity
 import com.teamsparta.todoapp.infra.BaseTimeEntity
 import jakarta.persistence.*
@@ -23,10 +24,15 @@ class Card(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    val user: UserEntity
+    val user: UserEntity,
 
-    ):BaseTimeEntity()
-{
+    @Column
+    val imageUrl: String?,
+
+    @OneToMany(mappedBy = "card", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val images: MutableList<Image> = mutableListOf()
+
+) : BaseTimeEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
@@ -41,6 +47,7 @@ fun Card.toResponse(): CardResponse {
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
         userId = user.id!!,
-        completed = completed
+        completed = completed,
+        imageUrl = imageUrl
     )
 }

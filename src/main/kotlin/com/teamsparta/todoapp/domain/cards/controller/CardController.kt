@@ -6,9 +6,11 @@ import com.teamsparta.todoapp.infra.security.UserPrincipal
 import io.swagger.v3.oas.annotations.Parameter
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 
 
 @RequestMapping("/cards")
@@ -37,13 +39,15 @@ class CardController(private val cardService: CardService) {
         return ResponseEntity.status(HttpStatus.OK).body(cardResponse)
     }
 
-    @PostMapping
+    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun createCard(
         @AuthenticationPrincipal user: UserPrincipal,
-        @RequestBody createCardRequest: CreateCardRequest
+        @RequestParam("imageFile") imageFile: MultipartFile?,
+        @RequestParam("title") title: String,
+        @RequestParam("description") description: String?,
     ): ResponseEntity<CardResponse> {
-        val userId = user.id
-        val cardResponse = cardService.createCard(createCardRequest,userId)
+        val createCardRequest = CreateCardRequest(title, description, imageFile)
+        val cardResponse = cardService.createCard(createCardRequest, user.id)
         return ResponseEntity.status(HttpStatus.CREATED).body(cardResponse)
     }
 
