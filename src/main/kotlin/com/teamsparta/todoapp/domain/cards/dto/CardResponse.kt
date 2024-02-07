@@ -12,5 +12,6 @@ data class CardResponse(
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val userId: Long,
-    var completed: Boolean?
+    var completed: Boolean?,
+    val imageUrl: String?
 )

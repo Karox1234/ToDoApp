@@ -6,6 +6,9 @@ import com.teamsparta.todoapp.domain.cards.model.toResponse
 import com.teamsparta.todoapp.domain.cards.repository.CardRepository
 import com.teamsparta.todoapp.domain.exception.CardOverException
 import com.teamsparta.todoapp.domain.exception.ModelNotFoundException
+import com.teamsparta.todoapp.domain.image.model.Image
+import com.teamsparta.todoapp.domain.image.repository.ImageRepository
+import com.teamsparta.todoapp.domain.image.service.ImageService
 import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -15,12 +18,17 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.access.AccessDeniedException
+import org.springframework.web.multipart.MultipartFile
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.util.*
 
 
 @Service
 
 class CardServiceImpl(
-    private val cardRepository: CardRepository, private val userRepository: UserRepository
+    private val cardRepository: CardRepository, private val userRepository: UserRepository , private val imageRepository: ImageRepository , private val imageService: ImageService
 ) : CardService {
 
     override fun getCardPage(pageNumber: Int, pageSize: Int, sortField: String?, sortOrder: Sort.Direction): CardPageResponse {
@@ -60,25 +68,47 @@ class CardServiceImpl(
 
 
     @Transactional
-    override fun createCard(request: CreateCardRequest, userId: Long): CardResponse =
-        userRepository.findByIdOrNull(userId)?.let { user ->
-            if (user.role == UserRole.USER && user.cardCount >= 3) {
-                throw CardOverException("유저는 카드를 세개 이상 만들수 없습니다.")
-            }
+    override fun createCard(request: CreateCardRequest, userId: Long): CardResponse {
+        val user = userRepository.findByIdOrNull(userId)
+            ?: throw ModelNotFoundException("User", userId)
+        if (user.role == UserRole.USER && user.cardCount >= 3) {
+            throw CardOverException("유저는 카드를 세개 이상 만들 수 없습니다.")
+        }
 
-            val savedCard = cardRepository.save(
-                Card(
-                    title = request.title,
-                    description = request.description,
-                    user = user,
-                    writer = user.profile.nickname
+        //이미지를 넣을지 말지 결정하는 로직
+        val imageUrl = if (request.imageUrl != null) {
+            imageService.uploadImage(request.imageUrl)
+            //null 이 아닌경우, image서비스 로직을 불러와서 적용
+        } else {
+            //아닌경우 null
+            null
+        }
+
+        val savedCard = cardRepository.save(
+            Card(
+                title = request.title,
+                description = request.description,
+                user = user,
+                writer = user.profile.nickname,
+                imageUrl = imageUrl //위에서 정한대로 진행 하면서 저장
+            )
+        )
+        //이미지가 있는경우
+        if (imageUrl != null) {
+            //이미지 레퍼지토리에 저장함(글에 올라간 사진에 대해서 데이터를 저장함)
+            imageRepository.save(
+                Image(
+                    fileName = savedCard.imageUrl!!,
+                    url = imageUrl,
+                    card = savedCard
                 )
             )
+        }
 
-            user.cardCount++
+        user.cardCount++
+        return savedCard.toResponse()
+    }
 
-            savedCard.toResponse()
-        } ?: throw ModelNotFoundException("User", userId)
 
 
     @Transactional
@@ -123,6 +153,4 @@ class CardServiceImpl(
 
 
 }
-
-
 

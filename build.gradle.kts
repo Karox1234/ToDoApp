@@ -44,6 +44,7 @@ dependencies {
 //	implementation("com.h2database:h2")
 
 	runtimeOnly("org.postgresql:postgresql")
+	implementation ("org.springframework.boot:spring-boot-starter-thymeleaf")
 }
 
 tasks.withType<KotlinCompile> {
