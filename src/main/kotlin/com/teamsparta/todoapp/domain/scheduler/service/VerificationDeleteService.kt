@@ -1,4 +1,4 @@
-package com.teamsparta.todoapp.domain.user.service
+package com.teamsparta.todoapp.domain.scheduler.service
 
 import com.teamsparta.todoapp.domain.user.repository.VerificationRepository
 import org.springframework.stereotype.Service
