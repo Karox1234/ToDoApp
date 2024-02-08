@@ -3,7 +3,9 @@ package com.teamsparta.todoapp.domain.user.model
 
 import com.teamsparta.todoapp.domain.user.dto.UserResponse
 import jakarta.persistence.*
+import org.hibernate.envers.Audited
 
+@Audited
 @Entity
 @Table(name = "app_user")
 class UserEntity(
@@ -21,7 +23,7 @@ class UserEntity(
     val role: UserRole,
 
     @Column(name = "card_count", nullable = false)
-    var cardCount: Int = 0
+    var cardCount: Int = 0,
 
 ) {
     @Id
