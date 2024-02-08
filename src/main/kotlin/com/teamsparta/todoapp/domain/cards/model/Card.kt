@@ -27,7 +27,7 @@ class Card(
     val user: UserEntity,
 
     @Column
-    val imageUrl: String?,
+    var imageUrl: String?,
 
     @OneToMany(mappedBy = "card", cascade = [CascadeType.ALL], orphanRemoval = true)
     val images: MutableList<Image> = mutableListOf()
