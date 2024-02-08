@@ -18,12 +18,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.access.AccessDeniedException
-import org.springframework.web.multipart.MultipartFile
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.util.*
-
 
 @Service
 
@@ -115,7 +109,6 @@ class CardServiceImpl(
         user.cardCount++
         return savedCard.toResponse()
     }
-
 
     @Transactional
     override fun updateCard(cardId: Long, userId: Long, request: UpdateCardRequest): CardResponse {
