@@ -28,12 +28,20 @@ import java.util.*
 @Service
 
 class CardServiceImpl(
-    private val cardRepository: CardRepository, private val userRepository: UserRepository , private val imageRepository: ImageRepository , private val imageService: ImageService
+    private val cardRepository: CardRepository,
+    private val userRepository: UserRepository,
+    private val imageRepository: ImageRepository,
+    private val imageService: ImageService
 ) : CardService {
 
-    override fun getCardPage(pageNumber: Int, pageSize: Int, sortField: String?, sortOrder: Sort.Direction): CardPageResponse {
+    override fun getCardPage(
+        pageNumber: Int,
+        pageSize: Int,
+        sortField: String?,
+        sortOrder: Sort.Direction
+    ): CardPageResponse {
 
-        val pageable: PageRequest = PageRequest.of(pageNumber -1, pageSize,sortOrder,sortField)
+        val pageable: PageRequest = PageRequest.of(pageNumber - 1, pageSize, sortOrder, sortField)
         val cardPage: Page<Card> = cardRepository.findAll(pageable)
 
         val cardResponseList: List<CardResponse> = cardPage.content.map { it.toResponse() }
@@ -44,8 +52,6 @@ class CardServiceImpl(
             totalCards = cardPage.totalElements
         )
     }
-
-
 
 
 //    override fun getAllCardList(): List<CardResponse> {
@@ -64,7 +70,7 @@ class CardServiceImpl(
 
 
     override fun getCardById(cardId: Long): CardResponse =
-        cardRepository.findByIdOrNull(cardId)?.toResponse() ?: throw ModelNotFoundException("Card",cardId)
+        cardRepository.findByIdOrNull(cardId)?.toResponse() ?: throw ModelNotFoundException("Card", cardId)
 
 
     @Transactional
@@ -111,20 +117,73 @@ class CardServiceImpl(
     }
 
 
-
     @Transactional
-    override fun updateCard(cardId: Long, userId: Long, request: UpdateCardRequest): CardResponse =
-        cardRepository.findByIdOrNull(cardId)?.let { card ->
-            if (card.user.id != userId) {
-                throw AccessDeniedException("You do not have permission to update this card.")
-            }
-            with(request) {
-                card.title = title
-                card.description = description
-            }
-            cardRepository.save(card).toResponse()
-        } ?: throw ModelNotFoundException("Card", cardId)
+    override fun updateCard(cardId: Long, userId: Long, request: UpdateCardRequest): CardResponse {
+        val card = cardRepository.findByIdOrNull(cardId) ?: throw ModelNotFoundException("Card", cardId)
+        if (card.user.id != userId) {
+            throw AccessDeniedException("You do not have permission to update this card.")
+        }
 
+        val title = request.title
+        val description = request.description
+
+        val newImageUrl = if (request.imageUrl != null) {
+            imageService.uploadImage(request.imageUrl)
+        } else {
+            null
+        }
+
+        //기존 이미지 Url 가져오기
+        val oldImageUrl = request.oldImageUrl
+
+        //새로운 이미지가 있고, 기존 이미지가 있는 경우
+        if (newImageUrl != null && oldImageUrl != null) {
+            // 새로운 이미지 Url과 기존 이미지 Url이 다를 경우에만 새로운 이미지 저장
+            if (newImageUrl != oldImageUrl) {
+                val fileName = newImageUrl.substringAfterLast("/")
+                imageRepository.save(
+                    Image(
+                        fileName = fileName, url = newImageUrl, card = card
+                    )
+                )
+                //새로운 이미지 Url이 있는 경우에만 카드의 이미지 Uru을 업데이트
+                card.imageUrl = newImageUrl
+                //기존 이미지 Url 삭제
+                val oldImage = imageRepository.findByUrl(oldImageUrl)
+                imageRepository.delete(oldImage)
+            }
+        }
+        //새로운 이미지가 있고, 기존 이미지가 없는 경우(기존 추가 로직)
+        else if (newImageUrl != null) {
+            val fileName = newImageUrl.substringAfterLast("/")
+            imageRepository.save(
+                Image(
+                    fileName = fileName, url = newImageUrl, card = card
+                )
+            )//새로운 이미지 Url이 있는 경우에만 카드의 이미지 Uru을 업데이트
+            card.imageUrl = newImageUrl
+        }
+
+        //기존에 Url이 있는데,
+        if (oldImageUrl != null) {
+            //새로운 이미지가 없는 경우(이미지가 변경되지 않은 경우)
+            if (newImageUrl == null) {
+                // 기존 URL을 그대로 유지
+                card.imageUrl = oldImageUrl
+            }
+            if (request.delOldImageUrl) {
+                //기존 이미지를 삭제하고 싶은경우(이미지 교체가 아닌, 단순 삭제)
+                val oldImage = imageRepository.findByUrl(oldImageUrl)
+                imageRepository.delete(oldImage)
+                card.imageUrl = null
+            }
+        }
+
+        card.title = title
+        card.description = description
+
+        return card.toResponse()
+    }
 
     @Transactional
     override fun deleteCard(cardId: Long, userId: Long) {

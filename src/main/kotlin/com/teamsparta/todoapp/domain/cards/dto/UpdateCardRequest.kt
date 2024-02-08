@@ -1,6 +1,7 @@
 package com.teamsparta.todoapp.domain.cards.dto
 
 import jakarta.validation.constraints.Size
+import org.springframework.web.multipart.MultipartFile
 
 
 data class UpdateCardRequest(
@@ -8,4 +9,7 @@ data class UpdateCardRequest(
     val title: String,
     @field:Size(max = 5000)
     val description: String?,
+    val imageUrl: MultipartFile?,
+    val oldImageUrl: String?,
+    val delOldImageUrl: Boolean
 )

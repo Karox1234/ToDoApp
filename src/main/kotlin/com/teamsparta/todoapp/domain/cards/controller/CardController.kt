@@ -1,10 +1,13 @@
 package com.teamsparta.todoapp.domain.cards.controller
 
 import com.teamsparta.todoapp.domain.cards.dto.*
+import com.teamsparta.todoapp.domain.cards.repository.CardRepository
 import com.teamsparta.todoapp.domain.cards.service.CardService
+import com.teamsparta.todoapp.domain.exception.ModelNotFoundException
 import com.teamsparta.todoapp.infra.security.UserPrincipal
 import io.swagger.v3.oas.annotations.Parameter
 import org.springframework.data.domain.Sort
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -15,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile
 
 @RequestMapping("/cards")
 @RestController
-class CardController(private val cardService: CardService) {
+class CardController(private val cardService: CardService , private val cardRepository: CardRepository) {
 
     @GetMapping("/page")
     fun getCardPage(
@@ -47,18 +50,22 @@ class CardController(private val cardService: CardService) {
         @RequestParam("description") description: String?,
     ): ResponseEntity<CardResponse> {
         val createCardRequest = CreateCardRequest(title, description, imageFile)
-        val cardResponse = cardService.createCard(createCardRequest, user.id)
-        return ResponseEntity.status(HttpStatus.CREATED).body(cardResponse)
+        return ResponseEntity.status(HttpStatus.CREATED).body(cardService.createCard(createCardRequest, user.id))
     }
 
-    @PutMapping("/{cardId}")
+    @PutMapping("/{cardId}", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun updateCard(
         @PathVariable cardId: Long,
-        @RequestBody updateCardRequest: UpdateCardRequest,
-        @AuthenticationPrincipal user: UserPrincipal
+        @AuthenticationPrincipal user: UserPrincipal,
+        @RequestParam("imageFile") imageFile: MultipartFile?,
+        @RequestParam("title") title: String,
+        @RequestParam("description") description: String?,
+        @Parameter(description = "사진 변경 없이 기존 사진을 삭제하고 싶을시 true로 작동해주세요") @RequestParam("delOldImageUrl", required = false, defaultValue = "false") delOldImageUrl: Boolean
     ): ResponseEntity<CardResponse> {
-        val userId= user.id
-        return ResponseEntity.status(HttpStatus.OK).body(cardService.updateCard(cardId, userId ,updateCardRequest))
+        val card = cardRepository.findByIdOrNull(cardId) ?: throw ModelNotFoundException("Card", cardId)
+        val oldImageUrl = card.imageUrl
+        val updateCardRequest = UpdateCardRequest(title, description, imageFile, oldImageUrl,delOldImageUrl)
+        return ResponseEntity.status(HttpStatus.OK).body(cardService.updateCard(cardId, user.id ,updateCardRequest))
     }
 
     @DeleteMapping("/{cardId}")
