@@ -95,10 +95,11 @@ class CardServiceImpl(
         )
         //이미지가 있는경우
         if (imageUrl != null) {
+            val fileName = imageUrl.substringAfterLast("/")
             //이미지 레퍼지토리에 저장함(글에 올라간 사진에 대해서 데이터를 저장함)
             imageRepository.save(
                 Image(
-                    fileName = savedCard.imageUrl!!,
+                    fileName = fileName,
                     url = imageUrl,
                     card = savedCard
                 )
