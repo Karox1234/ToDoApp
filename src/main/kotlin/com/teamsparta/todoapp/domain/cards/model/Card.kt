@@ -7,8 +7,9 @@ import com.teamsparta.todoapp.infra.BaseTimeEntity
 import jakarta.persistence.*
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
+import org.hibernate.envers.Audited
 
-
+@Audited
 @Entity
 @Table(name = "card")
 class Card(
@@ -27,7 +28,7 @@ class Card(
     val user: UserEntity,
 
     @Column
-    val imageUrl: String?,
+    var imageUrl: String?,
 
     @OneToMany(mappedBy = "card", cascade = [CascadeType.ALL], orphanRemoval = true)
     val images: MutableList<Image> = mutableListOf()

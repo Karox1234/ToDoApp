@@ -4,7 +4,9 @@ import com.teamsparta.todoapp.domain.cards.model.Card
 import jakarta.persistence.*
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
+import org.hibernate.envers.Audited
 
+@Audited
 @Table
 @Entity
 class Image(
