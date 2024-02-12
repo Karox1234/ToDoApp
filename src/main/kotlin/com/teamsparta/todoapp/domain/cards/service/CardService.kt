@@ -9,7 +9,7 @@ interface CardService {
 
     fun getAllCardList(): List<CardResponse>
 
-    fun getCardById(cardId: Long): CardResponse
+    fun getCardById(cardId: Long, page: Int, size: Int): CardAndCommentPagingResponse
 
     fun createCard(request: CreateCardRequest,userId: Long): CardResponse
 

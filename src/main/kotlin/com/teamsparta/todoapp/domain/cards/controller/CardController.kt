@@ -37,9 +37,13 @@ class CardController(private val cardService: CardService , private val cardRepo
     }
 
     @GetMapping("/{cardId}")
-    fun getCard(@PathVariable cardId: Long): ResponseEntity<CardResponse> {
-        val cardResponse = cardService.getCardById(cardId)
-        return ResponseEntity.status(HttpStatus.OK).body(cardResponse)
+    fun getCard(
+        @PathVariable cardId: Long,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "5") size: Int
+    ): ResponseEntity<CardAndCommentPagingResponse> {
+        val cardResponse = cardService.getCardById(cardId, page, size)
+        return ResponseEntity.ok(cardResponse)
     }
 
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
