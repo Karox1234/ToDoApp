@@ -1,7 +1,6 @@
 package com.teamsparta.todoapp.domain.user.service
 
 
-
 import com.teamsparta.todoapp.domain.exception.InvalidCredentialException
 import com.teamsparta.todoapp.domain.exception.ModelNotFoundException
 import com.teamsparta.todoapp.domain.user.dto.*
@@ -29,8 +28,8 @@ class UserServiceImpl(
 ) : UserService {
 
     override fun login(request: LoginRequest): LoginResponse {
-        val user = userRepository.findByEmail(request.email) ?: throw ModelNotFoundException("User", null )
-        if (user.role.name != request.role || !passwordEncoder.matches(request.password, user.password) ) {
+        val user = userRepository.findByEmail(request.email) ?: throw ModelNotFoundException("User", null)
+        if (user.role.name != request.role || !passwordEncoder.matches(request.password, user.password)) {
             throw InvalidCredentialException("비밀번호가 틀립니다")
         }
 
@@ -44,9 +43,9 @@ class UserServiceImpl(
     }
 
     override fun beforeSignUpCheckNickname(request: BeforeSignUpCheckNicknameRequest) {
-        if(userRepository.existsByProfileNickname(request.nickname)){
+        if (userRepository.existsByProfileNickname(request.nickname)) {
             throw IllegalStateException("이미 사용중인 Nickname 입니다.")
-        } //같은 닉네임 사용 불가 추가
+        }
     }
 
     override fun sendMail(request: SendMail) {
@@ -74,11 +73,12 @@ class UserServiceImpl(
 
     override fun signUp(request: SignUpRequest): UserResponse {
 
-        // email에 맞는 인증번호인지 조회
-        val verificationInfo = verificationRepository.findByEmailAndVerificationCode(request.email, request.verificationCode)
-            ?: throw IllegalArgumentException("잘못된 인증번호 입니다.")
 
-        // 유효시간 검증
+        val verificationInfo =
+            verificationRepository.findByEmailAndVerificationCode(request.email, request.verificationCode)
+                ?: throw IllegalArgumentException("잘못된 인증번호 입니다.")
+
+
         if (System.currentTimeMillis() > verificationInfo.expirationTime) {
             throw IllegalArgumentException("인증번호가 만료 되었습니다.")
         }
@@ -87,15 +87,15 @@ class UserServiceImpl(
             throw IllegalStateException("Email is already in use")
         }
 
-        if(userRepository.existsByProfileNickname(request.nickname)){
+        if (userRepository.existsByProfileNickname(request.nickname)) {
             throw IllegalStateException("이미 사용중인 Nickname 입니다.")
         }
 
-        if(request.password.windowed(4,1).any { it in request.nickname} ||
-            request.nickname.windowed(4,1).any { it in request.password })
+        if (request.password.windowed(4, 1).any { it in request.nickname } ||
+            request.nickname.windowed(4, 1).any { it in request.password })
             throw IllegalArgumentException("닉네임과 비밀번호는 서로의 값은 포함해선 안됩니다.")
 
-        val saveUser= userRepository.save(
+        val saveUser = userRepository.save(
             UserEntity(
                 email = request.email,
                 password = passwordEncoder.encode(request.password),
@@ -112,7 +112,7 @@ class UserServiceImpl(
 //        verificationRepository.delete(verificationInfo) 스케쥴러 구현후 생각해보니 굳이 지금 지울 필요가 없다 판단!
         return saveUser.toResponse()
     }
-// 현재는 인증과 회원가입 로직이 하나로 합쳐져 있지만, 프론트와 협업을 가정에 두면 보통 두개는 따로 이뤄지는 경우가 많아서 분리하는게 맞는거 같습니다!
+
 
 
     override fun updateUserProfile(userId: Long, updateUserProfileRequest: UpdateUserProfileRequest): UserResponse {
