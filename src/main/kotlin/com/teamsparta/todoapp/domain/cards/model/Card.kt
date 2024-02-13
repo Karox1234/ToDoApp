@@ -26,7 +26,7 @@ class Card(
     @Column(name = "completed") var completed: Boolean = false,
 
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     val user: UserEntity,
@@ -38,7 +38,7 @@ class Card(
     val images: MutableList<Image> = mutableListOf(),
 
     @NotAudited
-    @OneToMany(mappedBy = "card", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "card", fetch = FetchType.LAZY)
     val comments: List<Comment> = mutableListOf()
 
 ) : BaseTimeEntity() {
