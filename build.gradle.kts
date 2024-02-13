@@ -30,27 +30,36 @@ repositories {
 val queryDslVersion = "5.0.0"
 
 dependencies {
+	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
-	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-aop")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("io.jsonwebtoken:jjwt-api:0.12.3")
 	implementation ("org.springframework.boot:spring-boot-starter-mail")
 	implementation("com.querydsl:querydsl-jpa:$queryDslVersion:jakarta")
 	kapt("com.querydsl:querydsl-apt:$queryDslVersion:jakarta")
+	kapt("jakarta.annotation:jakarta.annotation-api")
+	kapt("jakarta.persistence:jakarta.persistence-api")
+
 
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
 //	implementation("com.h2database:h2")
-
 	runtimeOnly("org.postgresql:postgresql")
 	implementation ("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.springframework.data:spring-data-envers")
+
+	// 테스트 코드
+	runtimeOnly("com.h2database:h2")
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("io.mockk:mockk:1.13.9")
+	testImplementation("io.kotest:kotest-runner-junit5:5.7.2")
+	testImplementation("io.kotest:kotest-assertions-core:5.7.2")
 }
 
 tasks.withType<KotlinCompile> {

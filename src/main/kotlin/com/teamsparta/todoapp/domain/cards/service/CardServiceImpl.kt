@@ -83,6 +83,11 @@ class CardServiceImpl(
             totalComments = pagedComments.totalElements
         )
     }
+    //질문 있습니다.
+    //현재 이 코드는 쿼리를 4번 날리고 있습니다. 이유는 1.카드탐색 , 2.코멘트 탐색 3.코멘트 페이징 4.유저 정보 가져오기, 입니다
+    //해당 현상이 n+1인가 해서 해결해 보려 했지만 해결하지 못했고, 그나마 fetch타입을 EAGER로 변경시 쿼리가 3회로 줄었습니다.
+    //정답이 없는 문제 같긴 하지만 이런식으로 3~4회의 쿼리가 날라가는게 맞는 걸까요? 만약 이게 잘못된 방식에 가깝다면 어떤식으로 해결해야 할까요?
+    //많은 시간 고민 해봤는데 정답을 내리지 못하고 해결하지 못해서 질문 드려 봅니다!
 
 
     @Transactional
@@ -93,12 +98,9 @@ class CardServiceImpl(
             throw CardOverException("유저는 카드를 세개 이상 만들 수 없습니다.")
         }
 
-        //이미지를 넣을지 말지 결정하는 로직
         val imageUrl = if (request.imageUrl != null) {
             imageService.uploadImage(request.imageUrl)
-            //null 이 아닌경우, image서비스 로직을 불러와서 적용
         } else {
-            //아닌경우 null
             null
         }
 
@@ -108,13 +110,12 @@ class CardServiceImpl(
                 description = request.description,
                 user = user,
                 writer = user.profile.nickname,
-                imageUrl = imageUrl //위에서 정한대로 진행 하면서 저장
+                imageUrl = imageUrl
             )
         )
         //이미지가 있는경우
         if (imageUrl != null) {
             val fileName = imageUrl.substringAfterLast("/")
-            //이미지 레퍼지토리에 저장함(글에 올라간 사진에 대해서 데이터를 저장함)
             imageRepository.save(
                 Image(
                     fileName = fileName,
@@ -149,7 +150,6 @@ class CardServiceImpl(
 
         //새로운 이미지가 있고, 기존 이미지가 있는 경우
         if (newImageUrl != null && oldImageUrl != null) {
-            // 새로운 이미지 Url과 기존 이미지 Url이 다를 경우에만 새로운 이미지 저장
             if (newImageUrl != oldImageUrl) {
                 val fileName = newImageUrl.substringAfterLast("/")
                 imageRepository.save(
@@ -157,9 +157,7 @@ class CardServiceImpl(
                         fileName = fileName, url = newImageUrl, card = card
                     )
                 )
-                //새로운 이미지 Url이 있는 경우에만 카드의 이미지 Uru을 업데이트
                 card.imageUrl = newImageUrl
-                //기존 이미지 Url 삭제
                 val oldImage = imageRepository.findByUrl(oldImageUrl)
                 imageRepository.delete(oldImage)
             }
@@ -171,7 +169,7 @@ class CardServiceImpl(
                 Image(
                     fileName = fileName, url = newImageUrl, card = card
                 )
-            )//새로운 이미지 Url이 있는 경우에만 카드의 이미지 Uru을 업데이트
+            )
             card.imageUrl = newImageUrl
         }
 
@@ -179,7 +177,6 @@ class CardServiceImpl(
         if (oldImageUrl != null) {
             //새로운 이미지가 없는 경우(이미지가 변경되지 않은 경우)
             if (newImageUrl == null) {
-                // 기존 URL을 그대로 유지
                 card.imageUrl = oldImageUrl
             }
             if (request.delOldImageUrl) {
