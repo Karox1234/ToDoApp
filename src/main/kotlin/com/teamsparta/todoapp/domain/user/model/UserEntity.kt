@@ -1,9 +1,12 @@
 package com.teamsparta.todoapp.domain.user.model
 
 
+import com.teamsparta.todoapp.domain.cards.model.Card
+import com.teamsparta.todoapp.domain.comment.model.Comment
 import com.teamsparta.todoapp.domain.user.dto.UserResponse
 import jakarta.persistence.*
 import org.hibernate.envers.Audited
+import org.hibernate.envers.NotAudited
 
 @Audited
 @Entity
@@ -24,6 +27,15 @@ class UserEntity(
 
     @Column(name = "card_count", nullable = false)
     var cardCount: Int = 0,
+
+    @NotAudited
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    val comments: List<Comment> = mutableListOf(),
+
+    @NotAudited
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    val cards: List<Card> = mutableListOf()
+
 
 ) {
     @Id

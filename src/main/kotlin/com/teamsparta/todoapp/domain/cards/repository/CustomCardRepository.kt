@@ -1,8 +1,12 @@
 package com.teamsparta.todoapp.domain.cards.repository
 
+import com.teamsparta.todoapp.domain.cards.dto.CardAndCommentPagingResponse
 import com.teamsparta.todoapp.domain.cards.model.Card
+import org.springframework.data.domain.Pageable
 
 interface CustomCardRepository {
-//적용한곳 없음, 단순 연습
+
     fun findCardWithComments(cardId: Long): Card?
+
+    fun findCardWithPagedComments(cardId: Long, pageable: Pageable): CardAndCommentPagingResponse
 }

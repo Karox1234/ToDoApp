@@ -86,5 +86,8 @@ class CardController(private val cardService: CardService , private val cardRepo
         return ResponseEntity.status(HttpStatus.OK).body(cardService.toggleCardCompletion(cardId,userId))
     }
 
-
+    @GetMapping("/{cardId}/comments")
+    fun testCardAndCommentGetList(@PathVariable cardId: Long): ResponseEntity<CardAndCommentResponse> {
+        return ResponseEntity.status(HttpStatus.OK).body(cardService.testCardAndCommentGetList(cardId))
+    }
 }
