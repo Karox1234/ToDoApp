@@ -5,6 +5,7 @@ import com.teamsparta.todoapp.domain.cards.model.Card
 import com.teamsparta.todoapp.domain.cards.model.toCardAndCommentResponse
 import com.teamsparta.todoapp.domain.cards.model.toResponse
 import com.teamsparta.todoapp.domain.cards.repository.CardRepository
+import com.teamsparta.todoapp.domain.comment.dto.CommentResponse
 import com.teamsparta.todoapp.domain.comment.model.toResponse
 import com.teamsparta.todoapp.domain.comment.repository.CommentRepository
 import com.teamsparta.todoapp.domain.exception.CardOverException
@@ -71,7 +72,7 @@ class CardServiceImpl(
     override fun getCardById(cardId: Long, page: Int, size: Int): CardAndCommentPagingResponse {
         val card = cardRepository.findByIdOrNull(cardId) ?: throw ModelNotFoundException("Card", cardId)
 
-        val pageable = PageRequest.of(page-1, size)
+        val pageable = PageRequest.of(page -1, size)
         val pagedComments = commentRepository.findByCardId(cardId, pageable)
 
         val commentResponses = pagedComments.content.map { it.toResponse() }
@@ -83,11 +84,7 @@ class CardServiceImpl(
             totalComments = pagedComments.totalElements
         )
     }
-    //질문 있습니다.
-    //현재 이 코드는 쿼리를 4번 날리고 있습니다. 이유는 1.카드탐색 , 2.코멘트 탐색 3.코멘트 페이징 4.유저 정보 가져오기, 입니다
-    //해당 현상이 n+1인가 해서 해결해 보려 했지만 해결하지 못했고, 그나마 fetch타입을 EAGER로 변경시 쿼리가 3회로 줄었습니다.
-    //정답이 없는 문제 같긴 하지만 이런식으로 3~4회의 쿼리가 날라가는게 맞는 걸까요? 만약 이게 잘못된 방식에 가깝다면 어떤식으로 해결해야 할까요?
-    //많은 시간 고민 해봤는데 정답을 내리지 못하고 해결하지 못해서 질문 드려 봅니다!
+    //전 버전에서 질문을 드렷는데 코드 리팩토링으로 해결했습니다! 리팩토링한 코드는 가장 하단에 있습니다.
 
 
     @Transactional
@@ -219,6 +216,21 @@ class CardServiceImpl(
             card.toResponse()
         } ?: throw ModelNotFoundException("Card", cardId)
 
+
+    @Transactional
+    override fun testCardAndCommentGetList(cardId: Long): CardAndCommentResponse {
+        val card = cardRepository.findCardWithComments(cardId) ?: throw ModelNotFoundException("Card",cardId)
+        val commentResponses = card.comments.map { comment ->
+            CommentResponse(
+                id = comment.id!!,
+                description = comment.description,
+                writer = comment.user.profile.nickname,
+                userId = comment.user.id!!,
+                cardId = comment.card.id!!
+            )
+        }
+        return card.toCardAndCommentResponse(commentResponses)
+    }
 
 }
 

@@ -19,6 +19,6 @@ interface CardService {
 
     fun toggleCardCompletion(cardId: Long,userId: Long): CardResponse
 
-
+    fun testCardAndCommentGetList(cardId: Long) : CardAndCommentResponse
 }
 
