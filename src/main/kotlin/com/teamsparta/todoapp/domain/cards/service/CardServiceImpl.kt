@@ -98,12 +98,9 @@ class CardServiceImpl(
             throw CardOverException("유저는 카드를 세개 이상 만들 수 없습니다.")
         }
 
-        //이미지를 넣을지 말지 결정하는 로직
         val imageUrl = if (request.imageUrl != null) {
             imageService.uploadImage(request.imageUrl)
-            //null 이 아닌경우, image서비스 로직을 불러와서 적용
         } else {
-            //아닌경우 null
             null
         }
 
@@ -113,13 +110,12 @@ class CardServiceImpl(
                 description = request.description,
                 user = user,
                 writer = user.profile.nickname,
-                imageUrl = imageUrl //위에서 정한대로 진행 하면서 저장
+                imageUrl = imageUrl
             )
         )
         //이미지가 있는경우
         if (imageUrl != null) {
             val fileName = imageUrl.substringAfterLast("/")
-            //이미지 레퍼지토리에 저장함(글에 올라간 사진에 대해서 데이터를 저장함)
             imageRepository.save(
                 Image(
                     fileName = fileName,
@@ -154,7 +150,6 @@ class CardServiceImpl(
 
         //새로운 이미지가 있고, 기존 이미지가 있는 경우
         if (newImageUrl != null && oldImageUrl != null) {
-            // 새로운 이미지 Url과 기존 이미지 Url이 다를 경우에만 새로운 이미지 저장
             if (newImageUrl != oldImageUrl) {
                 val fileName = newImageUrl.substringAfterLast("/")
                 imageRepository.save(
@@ -162,9 +157,7 @@ class CardServiceImpl(
                         fileName = fileName, url = newImageUrl, card = card
                     )
                 )
-                //새로운 이미지 Url이 있는 경우에만 카드의 이미지 Uru을 업데이트
                 card.imageUrl = newImageUrl
-                //기존 이미지 Url 삭제
                 val oldImage = imageRepository.findByUrl(oldImageUrl)
                 imageRepository.delete(oldImage)
             }
@@ -176,7 +169,7 @@ class CardServiceImpl(
                 Image(
                     fileName = fileName, url = newImageUrl, card = card
                 )
-            )//새로운 이미지 Url이 있는 경우에만 카드의 이미지 Uru을 업데이트
+            )
             card.imageUrl = newImageUrl
         }
 
@@ -184,7 +177,6 @@ class CardServiceImpl(
         if (oldImageUrl != null) {
             //새로운 이미지가 없는 경우(이미지가 변경되지 않은 경우)
             if (newImageUrl == null) {
-                // 기존 URL을 그대로 유지
                 card.imageUrl = oldImageUrl
             }
             if (request.delOldImageUrl) {
